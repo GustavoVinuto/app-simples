@@ -23,7 +23,12 @@ export default function BottomNav({ activeTab, setActiveTab }) {
           <button
             key={item.id}
             className={`nav-item ${isCenter ? 'center-tab' : ''} ${isActive ? 'active' : ''}`}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              if (item.id === 'home') {
+                window.dispatchEvent(new CustomEvent('resetHomeMinistry'));
+              }
+              setActiveTab(item.id);
+            }}
             aria-current={isActive ? 'page' : undefined}
           >
             {isCenter ? (

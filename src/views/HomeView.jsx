@@ -1,23 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  MapPin, Clock, Heart, Users, Baby, Utensils, 
+import {
+  MapPin, Clock, Heart, Users, Baby, Utensils,
   Sparkles, Shield, MessageCircle, X, Quote, BookOpen,
-  ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Camera
+  ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Home
 } from 'lucide-react';
 import { CHURCH_INFO, CHURCH_MINISTRIES } from '../data/mockData';
 import { useAudio } from '../context/AudioContext';
+import MinistryDetailView from './MinistryDetailView';
 
 export default function HomeView({ setActiveTab, onOpenPix }) {
   const { sermons, playSermon } = useAudio();
   const latestSermon = sermons[0];
 
   const [heroSlide, setHeroSlide] = useState(0);
-  const [isHeroLiked, setIsHeroLiked] = useState(false);
   const [selectedMinistry, setSelectedMinistry] = useState(null);
   const [isSimplesExpanded, setIsSimplesExpanded] = useState(false);
 
+  // Escuta clique na aba Início para resetar o ministério se estiver aberto
+  useEffect(() => {
+    const handleReset = () => {
+      setSelectedMinistry(null);
+    };
+    window.addEventListener('resetHomeMinistry', handleReset);
+    return () => window.removeEventListener('resetHomeMinistry', handleReset);
+  }, []);
+
   const getMinistryIcon = (id) => {
     switch (id) {
+      case 'de-casa-em-casa':
+        return <Home size={16} color="#60a5fa" />;
       case 'simple-teens':
         return <Sparkles size={16} color="#e5b25d" />;
       case 'mulher-simples':
@@ -34,43 +45,46 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
   // 3 Featured Event Cartazes
   const heroSlides = [
     {
-      badge: "Próximo Culto",
-      title: "Culto Público & Mesa",
-      tagRight: "Domingo • 09h",
+      badge: "Série Atual • Microsérie",
+      title: "Série atual",
+      //tagRight: "11.10 • 9h",
       loc: "Rua Miradouro, 319 • Industrial São Luiz",
-      time: "Domingo às 09h00",
-      feature2: "Mesa da Ceia",
-      feature2Icon: "utensils",
-      feature3: "Comunhão",
+      time: "Domingos às 09h00",
+      feature2: "Microsérie",
+      feature2Icon: "sparkles",
+      feature3: "Culto & Comunidade",
       feature3Icon: "users",
-      image: CHURCH_INFO.heroImage,
-      link: CHURCH_INFO.googleMapsUrl
+      image: "/serie-inside-outside.jpg",
+      imagePosition: "center 60%",
+      targetTab: "sermons"
+    },
+    {
+      badge: "Relacional Simples²⁶",
+      title: "Mesas nos Lares",
+      //tagRight: "Ter, Qua & Qui",
+      loc: "Europa, Tropical, Estâncias & Masterville",
+      time: "Semanalmente às 20h00",
+      feature2: "Catecismo Nova Cidade",
+      feature2Icon: "book",
+      feature3: "4 Lares em Comunhão",
+      feature3Icon: "home",
+      image: "/relacional/logo.jpg",
+      imagePosition: "center center",
+      ministryId: "de-casa-em-casa"
     },
     {
       badge: "Mulher Simples",
-      title: "Chá & Encontro de Mulheres",
-      tagRight: "24 de Out • 16h",
+      title: "Sala de Oração",
+      //tagRight: "Todo Domingo • 8h30",
       loc: "Rua Miradouro, 319 • Industrial São Luiz",
-      time: "Sábado às 16h00",
-      feature2: "Café & Partilha",
-      feature2Icon: "utensils",
-      feature3: "Edificação",
-      feature3Icon: "heart",
-      image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-188.jpg",
-      link: `https://wa.me/5531989844775?text=${encodeURIComponent('Olá! Gostaria de participar do Encontro Mulher Simples na Igreja Cristã Simples.')}`
-    },
-    {
-      badge: "Simple Kids",
-      title: "Manhã Especial das Crianças",
-      tagRight: "18 de Out • 09h",
-      loc: "Rua Miradouro, 319 • Industrial São Luiz",
-      time: "Domingo às 09h00",
-      feature2: "Oficina Bíblica",
+      time: "Todo domingo às 08h30",
+      feature2: "Oração & Clamor",
       feature2Icon: "sparkles",
-      feature3: "0 a 11 anos",
-      feature3Icon: "baby",
-      image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/banner_criancas.jpg",
-      link: `https://wa.me/5531989844775?text=${encodeURIComponent('Olá! Gostaria de mais informações sobre o evento do Simple Kids na Igreja Cristã Simples.')}`
+      feature3: "Somente Mulheres",
+      feature3Icon: "heart",
+      image: "/sala-de-oracao.jpg",
+      imagePosition: "center center",
+      ministryId: "mulher-simples"
     }
   ];
 
@@ -85,7 +99,16 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
   const currentSlide = heroSlides[heroSlide];
 
   const handleHeroAction = () => {
-    if (currentSlide.isSermon && latestSermon) {
+    if (currentSlide.ministryId) {
+      const min = CHURCH_MINISTRIES.find(m => m.id === currentSlide.ministryId);
+      if (min) {
+        setSelectedMinistry(min);
+        return;
+      }
+    }
+    if (currentSlide.targetTab) {
+      setActiveTab(currentSlide.targetTab);
+    } else if (currentSlide.isSermon && latestSermon) {
       playSermon(latestSermon);
     } else if (currentSlide.link) {
       window.open(currentSlide.link, '_blank');
@@ -93,6 +116,19 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
       setActiveTab('bulletins');
     }
   };
+
+  // Se um ministério estiver selecionado, exibe os detalhes dentro do app
+  if (selectedMinistry) {
+    return (
+      <MinistryDetailView
+        ministry={selectedMinistry}
+        onBack={() => {
+          setSelectedMinistry(null);
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }}
+      />
+    );
+  }
 
   return (
     <div className="home-ref-container animate-fade-in">
@@ -103,24 +139,9 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
             src={currentSlide.image}
             alt={currentSlide.title}
             className="ref-featured-img full-bleed"
+            style={currentSlide.imagePosition ? { objectPosition: currentSlide.imagePosition } : undefined}
           />
 
-          {/* Top-left Badge */}
-          <div className="ref-featured-badge">
-            {currentSlide.badge}
-          </div>
-
-          {/* Top-right Heart Button */}
-          <button
-            className="ref-featured-heart-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsHeroLiked(!isHeroLiked);
-            }}
-            title={isHeroLiked ? 'Remover favorito' : 'Salvar evento'}
-          >
-            <Heart size={18} fill={isHeroLiked ? 'var(--color-terracotta)' : 'none'} color={isHeroLiked ? 'var(--color-terracotta)' : '#1a1a1a'} />
-          </button>
 
           {/* Next / Prev Nav Arrows */}
           <button
@@ -132,7 +153,7 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
             aria-label="Cartaz anterior"
             title="Anterior"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={30} strokeWidth={2.25} />
           </button>
 
           <button
@@ -144,7 +165,7 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
             aria-label="Próximo cartaz"
             title="Próximo"
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={30} strokeWidth={2.25} />
           </button>
 
           {/* Bottom Overlay Details */}
@@ -168,6 +189,8 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
               <div className="ref-featured-meta-item">
                 {currentSlide.feature2Icon === 'sparkles' ? (
                   <Sparkles size={14} color="#e5b25d" />
+                ) : currentSlide.feature2Icon === 'book' ? (
+                  <BookOpen size={14} color="#60a5fa" />
                 ) : (
                   <Utensils size={14} color="var(--color-olive-300)" />
                 )}
@@ -178,6 +201,8 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
                   <Heart size={14} color="var(--color-terracotta)" fill="var(--color-terracotta)" />
                 ) : currentSlide.feature3Icon === 'baby' ? (
                   <Baby size={14} color="#7cb342" />
+                ) : currentSlide.feature3Icon === 'home' ? (
+                  <Home size={14} color="#60a5fa" />
                 ) : (
                   <Users size={14} color="#e5b25d" />
                 )}
@@ -206,18 +231,14 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
       {/* 5. MINISTÉRIOS SECTION (Replacing "Mesas nos Bairros") */}
       <div className="ref-section">
         <div className="ref-section-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h3 className="ref-section-title">Ministérios</h3>
-            <span className="ref-ministries-count-badge">4 Áreas</span>
-          </div>
-          <span className="ref-section-subtext">Comunidade em Família</span>
+          <h3 className="ref-section-title">Ministérios</h3>
         </div>
 
         <div className="ref-ministries-grid">
           {CHURCH_MINISTRIES.map((ministry) => (
             <div
               key={ministry.id}
-              className="ref-ministry-grid-card"
+              className={`ref-ministry-grid-card ${ministry.featured ? 'featured' : ''}`}
               onClick={() => setSelectedMinistry(ministry)}
               role="button"
               tabIndex={0}
@@ -226,6 +247,7 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
                 src={ministry.image}
                 alt={ministry.name}
                 className="ref-ministry-grid-img"
+                style={ministry.id === 'de-casa-em-casa' ? { objectPosition: 'center center' } : undefined}
                 loading="lazy"
               />
 
@@ -244,33 +266,9 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
         </div>
       </div>
 
-      {/* 5.5 BANNER ATALHO PARA O FEED DA COMUNIDADE */}
-      <div 
-        className="home-feed-shortcut-card"
-        onClick={() => setActiveTab('feed')}
-        role="button"
-        tabIndex={0}
-      >
-        <div className="home-feed-shortcut-left">
-          <div className="home-feed-icon-circle">
-            <Camera size={18} color="#ffffff" />
-          </div>
-          <div>
-            <div className="home-feed-shortcut-title">
-              <span>Mural da Comunidade</span>
-              <span className="home-feed-shortcut-badge">Interativo</span>
-            </div>
-            <p className="home-feed-shortcut-sub">
-              Fotos, vídeos e interações do culto e da semana
-            </p>
-          </div>
-        </div>
-        <ChevronRight size={18} className="home-feed-shortcut-arrow" />
-      </div>
-
       {/* 6. CARD "A SIMPLES" - TODAS AS INFORMAÇÕES DA ABA DO SITE (EXPANSÍVEL) */}
       <div className={`a-simples-card ${isSimplesExpanded ? 'expanded' : 'collapsed'}`}>
-        <div 
+        <div
           className="a-simples-card-header"
           onClick={() => setIsSimplesExpanded(!isSimplesExpanded)}
           role="button"
@@ -291,8 +289,7 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
               }}
               aria-label={isSimplesExpanded ? "Minimizar card A Simples" : "Expandir card A Simples"}
             >
-              <span>{isSimplesExpanded ? "Minimizar" : "Expandir"}</span>
-              {isSimplesExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              {isSimplesExpanded ? <ChevronUp size={22} /> : <ChevronDown size={22} />}
             </button>
           </div>
 
@@ -305,8 +302,7 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
                 Viver o evangelho em seu formato mínimo composto. Toque para conhecer nossa espiritualidade, dias comuns e o modelo da bacia e toalha.
               </p>
               <div className="a-simples-expand-hint">
-                <span>Ver informações completas</span>
-                <ChevronDown size={14} />
+                <ChevronDown size={20} />
               </div>
             </div>
           )}
@@ -335,9 +331,9 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
               </p>
 
               <div className="a-simples-photo-wrapper">
-                <img 
-                  src="https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-36.jpg" 
-                  alt="Comunhão Igreja Cristã Simples" 
+                <img
+                  src="https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-36.jpg"
+                  alt="Comunhão Igreja Cristã Simples"
                   className="a-simples-photo"
                   loading="lazy"
                 />
@@ -382,9 +378,9 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
 
             {/* 3. BACIA E TOALHA */}
             <div className="a-simples-bacia-card">
-              <img 
-                src="https://igrejacristasimples.com.br/wp-content/uploads/2024/08/IMG_4260-1.jpg" 
-                alt="Bacia e Toalha - Liderança Servil" 
+              <img
+                src="https://igrejacristasimples.com.br/wp-content/uploads/2024/08/IMG_4260-1.jpg"
+                alt="Bacia e Toalha - Liderança Servil"
                 className="a-simples-bacia-bg"
                 loading="lazy"
               />
@@ -402,83 +398,12 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
               onClick={() => setIsSimplesExpanded(false)}
               aria-label="Minimizar card A Simples"
             >
-              <span>Minimizar</span>
-              <ChevronUp size={16} />
+              <ChevronUp size={22} />
             </button>
           </div>
         )}
       </div>
 
-      {/* MODAL DETALHES DO MINISTÉRIO */}
-      {selectedMinistry && (
-        <div className="modal-backdrop" onClick={() => setSelectedMinistry(null)}>
-          <div 
-            className="ministry-modal-content animate-slide-up" 
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="ministry-modal-hero">
-              <img 
-                src={selectedMinistry.image} 
-                alt={selectedMinistry.name} 
-                className="ministry-modal-img" 
-              />
-              <button 
-                className="ministry-modal-close" 
-                onClick={() => setSelectedMinistry(null)}
-                aria-label="Fechar"
-              >
-                <X size={18} />
-              </button>
-              <div className="ministry-modal-hero-badge">
-                {getMinistryIcon(selectedMinistry.id)}
-                <span>{selectedMinistry.subtitle || selectedMinistry.age}</span>
-              </div>
-            </div>
-
-            <div className="ministry-modal-body">
-              <h2 className="ministry-modal-title">{selectedMinistry.name}</h2>
-              <p className="ministry-modal-desc">{selectedMinistry.description}</p>
-
-              <div className="ministry-modal-info-box">
-                <div className="ministry-modal-info-row">
-                  <span className="info-label">Público:</span>
-                  <span className="info-value">{selectedMinistry.age}</span>
-                </div>
-                <div className="ministry-modal-info-row">
-                  <span className="info-label">Encontros:</span>
-                  <span className="info-value">Aos Domingos e encontros mensais</span>
-                </div>
-                <div className="ministry-modal-info-row">
-                  <span className="info-label">Local:</span>
-                  <span className="info-value">Igreja Cristã Simples • Industrial</span>
-                </div>
-              </div>
-
-              <div className="ministry-modal-actions">
-                <button
-                  className="ministry-whatsapp-btn"
-                  onClick={() => {
-                    const text = encodeURIComponent(
-                      selectedMinistry.whatsappMessage || 
-                      `Olá! Gostaria de saber mais sobre o ministério ${selectedMinistry.name} da Igreja Cristã Simples.`
-                    );
-                    window.open(`https://wa.me/5531989844775?text=${text}`, '_blank');
-                  }}
-                >
-                  <MessageCircle size={18} />
-                  <span>Conectar no WhatsApp</span>
-                </button>
-                <button
-                  className="ministry-close-btn"
-                  onClick={() => setSelectedMinistry(null)}
-                >
-                  Fechar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -86,7 +86,7 @@ export default function Header({ theme, toggleTheme, onOpenAdmin, onOpenPix }) {
                 <Check size={14} color="var(--color-success)" /> Culto de Domingo às 09h
               </div>
               <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                Série <strong>À Volta da Mesa</strong> na Rua Miradouro, 319. Traga sua família!
+                Microsérie <strong>Descobrindo a Simples: Inside Outside</strong> na Rua Miradouro, 319. Traga sua família!
               </p>
             </div>
           )}

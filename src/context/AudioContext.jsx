@@ -6,10 +6,25 @@ const AudioContext = createContext(null);
 export function AudioProvider({ children }) {
   const [sermons, setSermons] = useState(() => {
     const saved = localStorage.getItem('simples_sermons');
-    return saved ? JSON.parse(saved) : INITIAL_SERMONS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // If the new featured sermon isn't present, prepend it
+          const hasNewest = parsed.some(s => s.id === INITIAL_SERMONS[0].id);
+          if (!hasNewest) {
+            return [INITIAL_SERMONS[0], ...parsed];
+          }
+          return parsed;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return INITIAL_SERMONS;
   });
 
-  const [currentSermon, setCurrentSermon] = useState(sermons[0]);
+  const [currentSermon, setCurrentSermon] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);

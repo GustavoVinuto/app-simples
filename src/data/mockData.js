@@ -19,17 +19,31 @@ export const CHURCH_INFO = {
   faviconUrl: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/cropped-FAVICON-3-192x192.png",
   heroImage: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-3.jpg",
   prayerHandsImage: "https://igrejacristasimples.com.br/wp-content/uploads/2024/09/bhc55444hCda0y6yVeH1.jpeg",
-  kidsImage: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/banner_criancas.jpg",
+  kidsImage: "/banner_criancas.jpg",
+  currentSeriesCover: "/serie-inside-outside.jpg",
+  currentSeriesTitle: "Descobrindo a Simples: Inside Outside",
+  currentSeriesBadge: "Microsérie",
 };
 
 export const INITIAL_SERIES = [
+  {
+    id: "serie-inside-outside",
+    title: "Descobrindo a Simples: Inside Outside",
+    shortTitle: "Inside Outside",
+    description: "Microsérie especial sobre a essência, missão e chamado da Igreja Cristã Simples de dentro para fora.",
+    cover: "/serie-inside-outside.jpg",
+    totalMessages: 2,
+    badge: "Série Atual",
+    isCurrent: true,
+    schedule: "11.10 • 9HR"
+  },
   {
     id: "serie-1",
     title: "À Volta da Mesa",
     description: "A mesa como princípio fundamental do Evangelho, elemento de construção e intimidade espiritual.",
     cover: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-188.jpg",
     totalMessages: 4,
-    badge: "Série Atual"
+    badge: "Comunidade"
   },
   {
     id: "serie-2",
@@ -58,6 +72,32 @@ export const INITIAL_SERIES = [
 ];
 
 export const INITIAL_SERMONS = [
+  {
+    id: "sermon-inside-outside-1",
+    title: "Inside Outside: A Igreja de Dentro Para Fora",
+    seriesId: "serie-inside-outside",
+    seriesTitle: "Descobrindo a Simples: Inside Outside",
+    speaker: "Pr. Marcos Vinícius",
+    date: "11 de Outubro • 09h",
+    duration: "45 min",
+    bibleText: "Mateus 5:13-16 & Efésios 3:10",
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    spotifyUrl: "https://open.spotify.com/search/igreja%20crista%20simples",
+    cover: "/serie-inside-outside.jpg",
+    isFeatured: true,
+    summary: "Uma investigação profunda sobre o DNA da Simples. Mais do que quatro paredes ou estruturas, somos uma comunidade viva chamada a viver o Evangelho de dentro para fora na cidade.",
+    outline: [
+      "1. O chamado para ser luz e sal fora das quatro paredes.",
+      "2. Inside: O cuidado com o coração, a mesa e o discipulado no secreto.",
+      "3. Outside: A relevância missional e o impacto na cidade.",
+      "4. Descobrindo a Simples: O que Deus confiou à nossa comunidade."
+    ],
+    tableQuestions: [
+      "O que você tem descoberto sobre a essência da Igreja Simples nesta série?",
+      "Como viver o 'Outside' no seu trabalho, estudos e vizinhança esta semana?",
+      "De que forma podemos cuidar melhor da vida 'Inside' (espiritualidade e comunhão)?"
+    ]
+  },
   {
     id: "sermon-1",
     title: "A Mesa: O Lugar Onde a Identidade é Forjada",
@@ -192,7 +232,7 @@ export const INITIAL_BULLETINS = [
     category: "Liturgia",
     date: "15 de Outubro de 2026",
     badge: "Próximo Culto",
-    image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-3.jpg",
+    image: "/serie-inside-outside.jpg",
     summary: "Confira a ordem do nosso culto deste domingo às 09h00 no prédio da Simples. Traga sua Bíblia e coração aberto para a Mesa da Comunhão.",
     content: `
 ### Culto Público da Igreja Cristã Simples
@@ -203,7 +243,7 @@ export const INITIAL_BULLETINS = [
 1. **Prelúdio & Chamada à Adoração:** Leitura comunitária do Salmo 145.
 2. **Cânticos de Exaltação:** Louvor congregacional com foco na glória de Cristo.
 3. **Oração de Confissão & Graça:** Reconhecendo nossa fraqueza e a suficiência de Jesus.
-4. **Mensagem Pastoral:** Série *À Volta da Mesa* — Texto em Lucas 24.
+4. **Mensagem Pastoral:** Microsérie *Descobrindo a Simples: Inside Outside* — 09h.
 5. **A Mesa do Senhor (A Ceia):** Distribuição do pão e do cálice a todos os batizados em comunhão.
 6. **Bênção e Envio Missional:** "Ide em paz para amar e servir a cidade de Contagem!"
     `,
@@ -328,13 +368,223 @@ export const INITIAL_TABLE_GROUPS = [
 
 export const CHURCH_MINISTRIES = [
   {
+    id: "de-casa-em-casa",
+    name: "De Casa em Casa",
+    subtitle: "Relacional Simples²⁶",
+    featured: true,
+    description: "Nossos encontros relacionais nos lares de terça a quinta-feira. Estudando juntos o Catecismo Nova Cidade, fortalecendo a comunhão e caminhando de casa em casa.",
+    image: "/relacional/card-inicial.jpg",
+    age: "Toda a família",
+    location: "Nos Lares • Contagem e Sarzedo",
+    badge: "Relacional nos Lares",
+    themeVerse: "E todos os dias, no templo e de casa em casa, não cessavam de ensinar e de pregar Jesus, o Cristo. — Atos 5:42",
+    whatsappMessage: "Olá! Gostaria de saber mais e participar de um dos encontros De Casa em Casa (Relacional) da Igreja Cristã Simples.",
+    events: [
+      {
+        id: "relacional-evt-1",
+        title: "Mesas nos Lares",
+        tagRight: "Ter, Qua & Qui • 20h",
+        badge: "Semanal",
+        date: "Terças, Quartas e Quintas às 20h00",
+        time: "Ter, Qua & Qui às 20h00",
+        loc: "Europa, Tropical, Estâncias & Masterville",
+        feature2: "Catecismo Nova Cidade",
+        feature2Icon: "book",
+        feature3: "4 Mesas nos Lares",
+        feature3Icon: "home",
+        image: "/relacional/logo.jpg",
+        description: "A mesa como princípio fundamental do Evangelho. Comunhão viva nos lares com estudo bíblico, partilha do pão e oração."
+      },
+      {
+        id: "relacional-evt-2",
+        title: "Mesas em Contagem",
+        tagRight: "Europa, Tropical & Estâncias",
+        badge: "3 Lares",
+        date: "Terças e Quintas às 20h00",
+        time: "Terças & Quintas às 20h00",
+        loc: "Bairros de Contagem • MG",
+        feature2: "Estudo Catecismo",
+        feature2Icon: "book",
+        feature3: "3 Mesas nos Lares",
+        feature3Icon: "home",
+        image: "/relacional/casas-1.jpg",
+        description: "Encontros acolhedores nos lares de Contagem. Partilha da Palavra, café compartilhado e edificação espiritual mútua."
+      },
+      {
+        id: "relacional-evt-3",
+        title: "Mesa em Sarzedo",
+        tagRight: "Masterville",
+        badge: "1 Lar",
+        date: "Quintas-feiras às 20h00",
+        time: "Quintas às 20h00",
+        loc: "Bairro Masterville • Sarzedo",
+        feature2: "Comunhão & Mesa",
+        feature2Icon: "sparkles",
+        feature3: "Lar Léo & Edilene",
+        feature3Icon: "home",
+        image: "/relacional/casas-2.jpg",
+        description: "Comunhão viva no lar de Léo & Edilene em Sarzedo. Hospitalidade cristã e fortalecimento dos laços fraternos."
+      },
+      {
+        id: "relacional-evt-4",
+        title: "Estudo Catecismo",
+        tagRight: "2º Semestre 2026",
+        badge: "Semestral",
+        date: "Agosto a Novembro de 2026",
+        time: "Semanal às 20h00",
+        loc: "Perguntas 21 a 35",
+        feature2: "Catecismo Nova Cidade",
+        feature2Icon: "book",
+        feature3: "Cristo, Redenção & Graça",
+        feature3Icon: "book",
+        image: "/relacional/carta.jpg",
+        description: "Catecismo Nova Cidade – Segunda Parte: Cristo, Redenção e Graça. Estudo sistemático para a maturidade de todo o Corpo de Cristo."
+      }
+    ],
+    studyMaterial: {
+      title: "Catecismo Nova Cidade – Segunda Parte: Cristo, Redenção e Graça",
+      questions: "Perguntas 21 a 35",
+      period: "Agosto a Novembro",
+      highlight: "Estudo sistemático para o crescimento espiritual e maturidade de todo o Corpo de Cristo."
+    },
+    letter: {
+      salutation: "Oi, Simples!",
+      paragraphs: [
+        "Estamos extremamente felizes com o retorno do nosso Relacional²⁶.",
+        "Assim como temos feito nos últimos anos, continuaremos estudando juntos. Neste semestre, seguiremos com o Catecismo Nova Cidade – Segunda Parte: Cristo, Redenção e Graça, abrangendo as perguntas 21 a 35.",
+        "Aqui você encontrará a lista das casas, dias e horários em que acontecerão os encontros. Sua participação é fundamental para o seu crescimento espiritual e, consequentemente, para o amadurecimento de todo o Corpo de Cristo.",
+        "Nosso propósito é caminhar juntos nesse estudo de agosto a novembro, fortalecendo nossa comunhão, aprofundando nosso conhecimento das Escrituras e sendo edificados pela graça de Deus.",
+        "é simples."
+      ]
+    },
+    houses: [
+      {
+        id: "casa-lurdinha-camila",
+        hosts: "Lurdinha & Camila",
+        day: "Terça-feira",
+        time: "20h00",
+        address: "Av. Padre Joaquim Martins, 752",
+        neighborhood: "Bairro Europa",
+        city: "Contagem",
+        fullAddress: "Av. Padre Joaquim Martins, 752 – Bairro Europa, Contagem",
+        mapsUrl: "https://maps.google.com/?q=Av.+Padre+Joaquim+Martins+752+Bairro+Europa+Contagem",
+        whatsapp: "5531989844775",
+        image: "/casas/casa-europa.jpg"
+      },
+      {
+        id: "casa-fred-cris",
+        hosts: "Fred & Cris",
+        day: "Quarta-feira",
+        time: "20h00",
+        address: "Rua Antônia Alves de Vieira Duarte, 124",
+        neighborhood: "Bairro Tropical",
+        city: "Contagem",
+        fullAddress: "Rua Antônia Alves de Vieira Duarte, 124 – Bairro Tropical, Contagem",
+        mapsUrl: "https://maps.google.com/?q=Rua+Antonia+Alves+de+Vieira+Duarte+124+Bairro+Tropical+Contagem",
+        whatsapp: "5531989844775",
+        image: "/casas/casa-tropical.jpg"
+      },
+      {
+        id: "casa-andre-kamilla",
+        hosts: "André & Kamilla",
+        day: "Quinta-feira",
+        time: "20h00",
+        address: "Rua das Harpas, 216",
+        neighborhood: "Bairro Estâncias Imperiais",
+        city: "Contagem",
+        fullAddress: "Rua das Harpas, 216 – Bairro Estâncias Imperiais, Contagem",
+        mapsUrl: "https://maps.google.com/?q=Rua+das+Harpas+216+Bairro+Estancias+Imperiais+Contagem",
+        whatsapp: "5531989844775",
+        image: "/casas/casa-estancias.jpg"
+      },
+      {
+        id: "casa-leo-edilene",
+        hosts: "Léo & Edilene",
+        day: "Quinta-feira",
+        time: "20h00",
+        address: "Rua Alameda Ipê Branco, 121",
+        neighborhood: "Bairro Masterville",
+        city: "Sarzedo",
+        fullAddress: "Rua Alameda Ipê Branco, 121 – Bairro Masterville, Sarzedo",
+        mapsUrl: "https://maps.google.com/?q=Rua+Alameda+Ipe+Branco+121+Bairro+Masterville+Sarzedo",
+        whatsapp: "5531989844775",
+        image: "/casas/casa-masterville.jpg"
+      }
+    ],
+    gallery: [
+      {
+        title: "Carta de Abertura do Relacional",
+        src: "/relacional/carta.jpg",
+        caption: "Estudo Catecismo Nova Cidade"
+      },
+      {
+        title: "Casas em Contagem",
+        src: "/relacional/casas-1.jpg",
+        caption: "Bairros Europa, Tropical e Estâncias Imperiais"
+      },
+      {
+        title: "Casa em Sarzedo",
+        src: "/relacional/casas-2.jpg",
+        caption: "Bairro Masterville"
+      }
+    ]
+  },
+  {
     id: "simple-teens",
     name: "Simple Teens",
     subtitle: "Teens & Conexão",
     description: "Espaço de comunhão, discipulado bíblico e amizade para os adolescentes da Simples.",
-    image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-160.jpg",
+    image: "/teens/teens-group.jpg",
     age: "12 a 17 anos",
-    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Simple Teens da Igreja Cristã Simples."
+    location: "Rua Miradouro, 319 • Industrial",
+    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Simple Teens da Igreja Cristã Simples.",
+    events: [
+      {
+        id: "teens-evt-1",
+        title: "Conexão Teens",
+        tagRight: "Sextas • 19h30",
+        badge: "Semanal",
+        date: "Sextas-feiras às 19h30",
+        time: "Sextas às 19h30",
+        loc: "Rua Miradouro, 319 • Prédio Simples",
+        feature2: "Semanal",
+        feature2Icon: "sparkles",
+        feature3: "12 a 17 anos",
+        feature3Icon: "users",
+        image: "/teens/teens-group.jpg",
+        description: "Encontro semanal de adolescentes com comunhão, dinâmica bíblica e lanche compartilhado."
+      },
+      {
+        id: "teens-evt-2",
+        title: "Retiro & Acampamento Teens",
+        tagRight: "Novembro • 2026",
+        badge: "Especial",
+        date: "Novembro de 2026",
+        time: "Fim de semana integral",
+        loc: "Sítio Vale Verde • Contagem",
+        feature2: "Imersão Espiritual",
+        feature2Icon: "sparkles",
+        feature3: "Simple Teens",
+        feature3Icon: "users",
+        image: "/teens/teens-camp.jpg",
+        description: "Três dias de imersão espiritual, amizade, luau e propósito com a juventude da Simples."
+      },
+      {
+        id: "teens-evt-3",
+        title: "Unidade & Propósito",
+        tagRight: "Encontro Especial",
+        badge: "Comunhão",
+        date: "Sábados às 17h00",
+        time: "Sábados às 17h00",
+        loc: "Rua Miradouro, 319 • Industrial",
+        feature2: "Crescimento & Fé",
+        feature2Icon: "sparkles",
+        feature3: "Teens da Simples",
+        feature3Icon: "users",
+        image: "/teens/teens-circle.jpg",
+        description: "Um só coração e uma só voz. Vivendo o amor de Cristo juntos desde a juventude."
+      }
+    ]
   },
   {
     id: "mulher-simples",
@@ -343,16 +593,82 @@ export const CHURCH_MINISTRIES = [
     description: "Mulheres que buscam a presença de Deus, acolhimento, oração mútua e edificação na fé.",
     image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-188.jpg",
     age: "Mulheres de todas as idades",
-    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Mulher Simples da Igreja Cristã Simples."
+    location: "Rua Miradouro, 319 • Industrial",
+    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Mulher Simples da Igreja Cristã Simples.",
+    events: [
+      {
+        id: "mulher-evt-sala-oracao",
+        title: "Sala de Oração",
+        //tagRight: "Todo Domingo • 8h30",
+        badge: "Semanal",
+        date: "Todos os Domingos às 08h30",
+        time: "Domingos às 08h30",
+        loc: "Rua Miradouro, 319 • Prédio Simples",
+        feature2: "Oração & Clamor",
+        feature2Icon: "sparkles",
+        feature3: "Somente Mulheres",
+        feature3Icon: "heart",
+        image: "/sala-de-oracao.jpg",
+        description: "Momento especial de oração, clamor e intercessão somente para mulheres antes do culto público. Todo domingo às 8h30."
+      },
+      {
+        id: "mulher-evt-1",
+        title: "Chá de Mulheres & Comunhão",
+        tagRight: "Mensal • Sábado",
+        badge: "Mensal",
+        date: "Último Sábado do Mês às 16h00",
+        time: "Último Sábado às 16h00",
+        loc: "Rua Miradouro, 319 • Industrial",
+        feature2: "Comunhão & Chá",
+        feature2Icon: "sparkles",
+        feature3: "Mulheres Simples",
+        feature3Icon: "heart",
+        image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-188.jpg",
+        description: "Tarde especial de acolhimento, edificação mútua, testemunhos e chá da tarde."
+      },
+      {
+        id: "mulher-evt-2",
+        title: "Círculo de Leitura & Oração",
+        tagRight: "Quintas • 19h30",
+        badge: "Quinzenal",
+        date: "Quintas-feiras às 19h30",
+        time: "Quintas às 19h30",
+        loc: "Mesas nos Lares",
+        feature2: "Livros & Oração",
+        feature2Icon: "book",
+        feature3: "Quinzenal",
+        feature3Icon: "users",
+        image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-36.jpg",
+        description: "Leitura de livros comunitários e fortalecimento dos laços fraternos."
+      }
+    ]
   },
   {
     id: "simple-kids",
     name: "Simple Kids",
     subtitle: "Crianças & Família",
     description: "Instruindo a nova geração nos caminhos do Senhor com atividades lúdicas e bíblicas aos domingos.",
-    image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/banner_criancas.jpg",
+    image: "/banner_criancas.jpg",
     age: "Berçário a 11 anos",
-    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Simple Kids da Igreja Cristã Simples."
+    location: "Rua Miradouro, 319 • Industrial",
+    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Simple Kids da Igreja Cristã Simples.",
+    events: [
+      {
+        id: "kids-evt-1",
+        title: "Salas Kids & Berçário",
+        //tagRight: "Todo Domingo • 9h",
+        //badge: "Todo Domingo",
+        date: "Todos os Domingos às 09h00",
+        time: "Domingos às 09h00",
+        loc: "Salas Kids • Rua Miradouro, 319",
+        feature2: "Ensino & Cuidado",
+        feature2Icon: "sparkles",
+        feature3: "Berçário a 11 anos",
+        feature3Icon: "baby",
+        image: "/banner_criancas.jpg",
+        description: "Acolhimento para crianças de berçário até 11 anos durante o culto público da família aos domingos."
+      }
+    ]
   },
   {
     id: "hermanos",
@@ -361,7 +677,40 @@ export const CHURCH_MINISTRIES = [
     description: "Homens caminhando juntos em fraternidade, integridade de fé, vida familiar e testemunho no trabalho.",
     image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/09/17c5F43JCdf91Vd0sdgO.jpeg",
     age: "Homens de todas as idades",
-    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Hermanos da Igreja Cristã Simples."
+    location: "Rua Miradouro, 319 • Industrial",
+    whatsappMessage: "Olá! Gostaria de saber mais sobre o ministério Hermanos da Igreja Cristã Simples.",
+    events: [
+      {
+        id: "hermanos-evt-1",
+        title: "Café dos Hermanos",
+        tagRight: "1º Sábado • 8h",
+        badge: "Mensal",
+        date: "1º Sábado do Mês às 08h00",
+        time: "1º Sábado às 08h00",
+        loc: "Rua Miradouro, 319 • Industrial",
+        feature2: "Café Comunitário",
+        feature2Icon: "sparkles",
+        feature3: "Homens da Simples",
+        feature3Icon: "users",
+        image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/09/17c5F43JCdf91Vd0sdgO.jpeg",
+        description: "Café comunitário, palavra e fraternidade entre os homens da Simples."
+      },
+      {
+        id: "hermanos-evt-2",
+        title: "Discipulado no Trabalho",
+        tagRight: "Terças • 19h30",
+        badge: "Quinzenal",
+        date: "Terças-feiras às 19h30",
+        time: "Terças às 19h30",
+        loc: "Online & Lares",
+        feature2: "Fé no Cotidiano",
+        feature2Icon: "book",
+        feature3: "Quinzenal",
+        feature3Icon: "users",
+        image: "https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-160.jpg",
+        description: "Homens caminhando juntos em integridade e testemunho no cotidiano."
+      }
+    ]
   }
 ];
 
@@ -475,6 +824,15 @@ export const FEED_STORIES = [
     title: "Encontro",
     time: "Ontem",
     hasUnseen: false
+  },
+  {
+    id: "story-6",
+    author: "Simple Teens",
+    avatar: "/teens/teens-circle.jpg",
+    media: "/teens/teens-camp.jpg",
+    title: "Conexão",
+    time: "Hoje",
+    hasUnseen: true
   }
 ];
 

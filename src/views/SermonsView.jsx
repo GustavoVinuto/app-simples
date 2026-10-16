@@ -108,6 +108,7 @@ export default function SermonsView() {
 
   // Color palettes for Spotify Genre/Series cards
   const seriesGradients = [
+    { bg: 'linear-gradient(135deg, #141829, #080a13)', text: '#ffffff' },
     { bg: 'linear-gradient(135deg, #5c6340, #343825)', text: '#ffffff' },
     { bg: 'linear-gradient(135deg, #c76f61, #873e33)', text: '#ffffff' },
     { bg: 'linear-gradient(135deg, #37634d, #1e3b2d)', text: '#ffffff' },
@@ -121,7 +122,7 @@ export default function SermonsView() {
         <div className="spotify-hero-inner">
           <div className="spotify-cover-wrap">
             <img
-              src={CHURCH_INFO.heroImage}
+              src={latestSermon?.cover || '/serie-inside-outside.jpg'}
               alt="Pregações Simples"
               className="spotify-show-cover"
             />
