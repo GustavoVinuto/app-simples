@@ -60,7 +60,7 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
     },
     {
       badge: "Relacional Simples²⁶",
-      title: "Mesas nos Lares",
+      title: "De Casa em Casa",
       //tagRight: "Ter, Qua & Qui",
       loc: "Europa, Tropical, Estâncias & Masterville",
       time: "Semanalmente às 20h00",
@@ -68,8 +68,8 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
       feature2Icon: "book",
       feature3: "4 Lares em Comunhão",
       feature3Icon: "home",
-      image: "/relacional/logo.jpg",
-      imagePosition: "center center",
+      image: "/relacional/cartaz-de-casa-em-casa.png",
+      imagePosition: "center 30%",
       ministryId: "de-casa-em-casa"
     },
     {
@@ -83,35 +83,54 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
       feature3: "Somente Mulheres",
       feature3Icon: "heart",
       image: "/sala-de-oracao.jpg",
-      imagePosition: "center center",
+      imagePosition: "center 38%",
       ministryId: "mulher-simples"
     }
   ];
 
-  // Auto-advance cartazes every 5.5s
+  const [isPaused, setIsPaused] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(null);
+
+  // Auto-advance cartazes every 5.5s com reset adequado ao mudar de slide
   useEffect(() => {
+    if (isPaused) return;
     const timer = setInterval(() => {
       setHeroSlide((prev) => (prev + 1) % heroSlides.length);
     }, 5500);
     return () => clearInterval(timer);
-  }, [heroSlides.length]);
+  }, [heroSlide, heroSlides.length, isPaused]);
 
-  const currentSlide = heroSlides[heroSlide];
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
 
-  const handleHeroAction = () => {
-    if (currentSlide.ministryId) {
-      const min = CHURCH_MINISTRIES.find(m => m.id === currentSlide.ministryId);
+  const handleTouchEnd = (e) => {
+    if (touchStartX === null) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (diff > 45) {
+      // swipe para a esquerda -> próximo
+      setHeroSlide((prev) => (prev + 1) % heroSlides.length);
+    } else if (diff < -45) {
+      // swipe para a direita -> anterior
+      setHeroSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    }
+    setTouchStartX(null);
+  };
+
+  const handleHeroSlideClick = (slide) => {
+    if (slide.ministryId) {
+      const min = CHURCH_MINISTRIES.find(m => m.id === slide.ministryId);
       if (min) {
         setSelectedMinistry(min);
         return;
       }
     }
-    if (currentSlide.targetTab) {
-      setActiveTab(currentSlide.targetTab);
-    } else if (currentSlide.isSermon && latestSermon) {
+    if (slide.targetTab) {
+      setActiveTab(slide.targetTab);
+    } else if (slide.isSermon && latestSermon) {
       playSermon(latestSermon);
-    } else if (currentSlide.link) {
-      window.open(currentSlide.link, '_blank');
+    } else if (slide.link) {
+      window.open(slide.link, '_blank');
     } else {
       setActiveTab('bulletins');
     }
@@ -132,16 +151,78 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
 
   return (
     <div className="home-ref-container animate-fade-in">
-      {/* 4. FEATURED HERO SHOWCASE CARD (Cartaz Principal Ocupando a Tela Toda, Sem Arestas Arredondadas) */}
-      <div className="ref-hero-fullbleed-wrapper">
-        <div className="ref-featured-card full-bleed" onClick={handleHeroAction}>
-          <img
-            src={currentSlide.image}
-            alt={currentSlide.title}
-            className="ref-featured-img full-bleed"
-            style={currentSlide.imagePosition ? { objectPosition: currentSlide.imagePosition } : undefined}
-          />
+      {/* 4. FEATURED HERO SHOWCASE SLIDER (Trilha Contínua com Transição Deslizante Suave) */}
+      <div 
+        className="ref-hero-fullbleed-wrapper"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div className="ref-hero-slider-container">
+          <div 
+            className="ref-hero-track"
+            style={{ transform: `translateX(-${heroSlide * 100}%)` }}
+          >
+            {heroSlides.map((slide, idx) => (
+              <div 
+                key={idx}
+                className="ref-hero-slide-item"
+                onClick={() => handleHeroSlideClick(slide)}
+              >
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="ref-featured-img full-bleed"
+                  style={slide.imagePosition ? { objectPosition: slide.imagePosition } : undefined}
+                  loading={idx === 0 ? "eager" : "lazy"}
+                />
 
+                {/* Bottom Overlay Details */}
+                <div className="ref-featured-overlay">
+                  <div className="ref-featured-title-row">
+                    <h2 className="ref-featured-title">{slide.title}</h2>
+                    <span className="ref-featured-tag-right">{slide.tagRight}</span>
+                  </div>
+
+                  <div className="ref-featured-loc">
+                    <MapPin size={13} style={{ flexShrink: 0 }} />
+                    <span>{slide.loc}</span>
+                  </div>
+
+                  {/* Meta Row with 3 badges */}
+                  <div className="ref-featured-meta-row">
+                    <div className="ref-featured-meta-item">
+                      <Clock size={14} color="var(--color-terracotta)" />
+                      <span>{slide.time}</span>
+                    </div>
+                    <div className="ref-featured-meta-item">
+                      {slide.feature2Icon === 'sparkles' ? (
+                        <Sparkles size={14} color="#e5b25d" />
+                      ) : slide.feature2Icon === 'book' ? (
+                        <BookOpen size={14} color="#60a5fa" />
+                      ) : (
+                        <Utensils size={14} color="var(--color-olive-300)" />
+                      )}
+                      <span>{slide.feature2}</span>
+                    </div>
+                    <div className="ref-featured-meta-item">
+                      {slide.feature3Icon === 'heart' ? (
+                        <Heart size={14} color="var(--color-terracotta)" fill="var(--color-terracotta)" />
+                      ) : slide.feature3Icon === 'baby' ? (
+                        <Baby size={14} color="#7cb342" />
+                      ) : slide.feature3Icon === 'home' ? (
+                        <Home size={14} color="#60a5fa" />
+                      ) : (
+                        <Users size={14} color="#e5b25d" />
+                      )}
+                      <span>{slide.feature3}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Next / Prev Nav Arrows */}
           <button
@@ -167,49 +248,6 @@ export default function HomeView({ setActiveTab, onOpenPix }) {
           >
             <ChevronRight size={30} strokeWidth={2.25} />
           </button>
-
-          {/* Bottom Overlay Details */}
-          <div className="ref-featured-overlay">
-            <div className="ref-featured-title-row">
-              <h2 className="ref-featured-title">{currentSlide.title}</h2>
-              <span className="ref-featured-tag-right">{currentSlide.tagRight}</span>
-            </div>
-
-            <div className="ref-featured-loc">
-              <MapPin size={13} style={{ flexShrink: 0 }} />
-              <span>{currentSlide.loc}</span>
-            </div>
-
-            {/* Meta Row with 3 badges */}
-            <div className="ref-featured-meta-row">
-              <div className="ref-featured-meta-item">
-                <Clock size={14} color="var(--color-terracotta)" />
-                <span>{currentSlide.time}</span>
-              </div>
-              <div className="ref-featured-meta-item">
-                {currentSlide.feature2Icon === 'sparkles' ? (
-                  <Sparkles size={14} color="#e5b25d" />
-                ) : currentSlide.feature2Icon === 'book' ? (
-                  <BookOpen size={14} color="#60a5fa" />
-                ) : (
-                  <Utensils size={14} color="var(--color-olive-300)" />
-                )}
-                <span>{currentSlide.feature2}</span>
-              </div>
-              <div className="ref-featured-meta-item">
-                {currentSlide.feature3Icon === 'heart' ? (
-                  <Heart size={14} color="var(--color-terracotta)" fill="var(--color-terracotta)" />
-                ) : currentSlide.feature3Icon === 'baby' ? (
-                  <Baby size={14} color="#7cb342" />
-                ) : currentSlide.feature3Icon === 'home' ? (
-                  <Home size={14} color="#60a5fa" />
-                ) : (
-                  <Users size={14} color="#e5b25d" />
-                )}
-                <span>{currentSlide.feature3}</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Dots / Pílulas Pagination below Hero */}

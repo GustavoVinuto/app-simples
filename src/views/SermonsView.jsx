@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { 
   Play, Pause, Search, Bookmark, Check, Bell, BellRing, 
   MoreHorizontal, Share2, Sparkles, Filter, ArrowUpDown, 
-  BookOpen, ExternalLink, X, CheckCircle2, ChevronRight
+  BookOpen, ExternalLink, X, CheckCircle2,
+  SlidersHorizontal, User, Calendar, Clock, RotateCcw
 } from 'lucide-react';
 import { useAudio } from '../context/AudioContext';
 import { INITIAL_SERIES, CHURCH_INFO } from '../data/mockData';
@@ -15,8 +16,12 @@ export default function SermonsView() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('all'); // all | series | favorites
+  const [activeFilter, setActiveFilter] = useState('series'); // series | all | favorites
   const [selectedSeries, setSelectedSeries] = useState(null);
+  const [selectedSpeaker, setSelectedSpeaker] = useState('all');
+  const [selectedDuration, setSelectedDuration] = useState('all'); // all | short (<40) | long (>=40)
+  const [onlyWithQuestions, setOnlyWithQuestions] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState('newest'); // newest | oldest
   const [isFollowing, setIsFollowing] = useState(() => {
     return localStorage.getItem('simples_spotify_following') === 'true';
@@ -58,6 +63,45 @@ export default function SermonsView() {
     }, 1500);
   };
 
+  // Extracted unique filters
+  const availableSpeakers = useMemo(() => {
+    const set = new Set();
+    sermons.forEach(s => {
+      if (s.speaker) set.add(s.speaker);
+    });
+    return Array.from(set);
+  }, [sermons]);
+
+  const availableSeries = useMemo(() => {
+    const set = new Set();
+    INITIAL_SERIES.forEach(s => {
+      if (s.title) set.add(s.title);
+    });
+    sermons.forEach(s => {
+      if (s.seriesTitle) set.add(s.seriesTitle);
+    });
+    return Array.from(set);
+  }, [sermons]);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedSpeaker !== 'all') count++;
+    if (selectedSeries) count++;
+    if (selectedDuration !== 'all') count++;
+    if (onlyWithQuestions) count++;
+    if (sortOrder === 'oldest') count++;
+    return count;
+  }, [selectedSpeaker, selectedSeries, selectedDuration, onlyWithQuestions, sortOrder]);
+
+  const resetFilters = () => {
+    setSelectedSpeaker('all');
+    setSelectedSeries(null);
+    setSelectedDuration('all');
+    setOnlyWithQuestions(false);
+    setSortOrder('newest');
+    setSearchQuery('');
+  };
+
   // Filter & Search Logic
   const filteredSermons = useMemo(() => {
     let list = [...sermons];
@@ -79,6 +123,29 @@ export default function SermonsView() {
       list = list.filter(s => s.seriesTitle === selectedSeries);
     }
 
+    // Speaker filter
+    if (selectedSpeaker && selectedSpeaker !== 'all') {
+      list = list.filter(s => s.speaker === selectedSpeaker);
+    }
+
+    // Duration filter
+    if (selectedDuration === 'short') {
+      list = list.filter(s => {
+        const num = parseInt(s.duration, 10);
+        return !isNaN(num) && num < 40;
+      });
+    } else if (selectedDuration === 'long') {
+      list = list.filter(s => {
+        const num = parseInt(s.duration, 10);
+        return !isNaN(num) && num >= 40;
+      });
+    }
+
+    // Only with questions
+    if (onlyWithQuestions) {
+      list = list.filter(s => s.tableQuestions && s.tableQuestions.length > 0);
+    }
+
     // Tab filter
     if (activeFilter === 'favorites') {
       list = list.filter(s => savedFavorites.includes(s.id));
@@ -90,7 +157,7 @@ export default function SermonsView() {
     }
 
     return list;
-  }, [sermons, searchQuery, selectedSeries, activeFilter, savedFavorites, sortOrder]);
+  }, [sermons, searchQuery, selectedSeries, selectedSpeaker, selectedDuration, onlyWithQuestions, activeFilter, savedFavorites, sortOrder]);
 
   const latestSermon = sermons[0];
 
@@ -181,13 +248,27 @@ export default function SermonsView() {
             </button>
           </div>
 
-          <button
-            className={`spotify-icon-btn ${showSearch ? 'active' : ''}`}
-            onClick={() => setShowSearch(!showSearch)}
-            title="Buscar episódios"
-          >
-            <Search size={20} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button
+              className={`spotify-icon-btn ${showSearch ? 'active' : ''}`}
+              onClick={() => setShowSearch(!showSearch)}
+              title="Buscar pregações"
+            >
+              <Search size={20} />
+            </button>
+
+            <button
+              className={`spotify-icon-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
+              onClick={() => setIsFilterModalOpen(true)}
+              title="Filtros avançados (pregador, data, duração)"
+              style={{ position: 'relative' }}
+            >
+              <SlidersHorizontal size={20} />
+              {activeFiltersCount > 0 && (
+                <span className="spotify-filter-badge-count">{activeFiltersCount}</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -219,17 +300,17 @@ export default function SermonsView() {
       {/* FILTER PILLS */}
       <div className="spotify-pills-row">
         <button
-          className={`spotify-pill ${activeFilter === 'all' && !selectedSeries ? 'active' : ''}`}
-          onClick={() => { setActiveFilter('all'); setSelectedSeries(null); }}
-        >
-          Todos os episódios
-        </button>
-
-        <button
           className={`spotify-pill ${activeFilter === 'series' || selectedSeries ? 'active' : ''}`}
           onClick={() => { setActiveFilter('series'); }}
         >
           Séries & Temas
+        </button>
+
+        <button
+          className={`spotify-pill ${activeFilter === 'all' && !selectedSeries ? 'active' : ''}`}
+          onClick={() => { setActiveFilter('all'); setSelectedSeries(null); }}
+        >
+          Todos os episódios
         </button>
 
         <button
@@ -288,21 +369,66 @@ export default function SermonsView() {
         </div>
       )}
 
-      {/* SECTION HEADER & SORT */}
+      {/* SECTION HEADER, FILTER & SORT */}
       <div className="spotify-section-head">
         <span className="spotify-section-title">
           {selectedSeries ? `Episódios de "${selectedSeries}"` : 'Todos os Episódios'}
         </span>
 
-        <button
-          className="spotify-sort-btn"
-          onClick={() => setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest')}
-          title="Alternar ordem dos episódios"
-        >
-          <ArrowUpDown size={13} />
-          {sortOrder === 'newest' ? 'Mais recentes' : 'Mais antigos'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            className={`spotify-sort-btn ${activeFiltersCount > 0 ? 'active' : ''}`}
+            onClick={() => setIsFilterModalOpen(true)}
+            title="Abrir filtros"
+          >
+            <Filter size={13} />
+            {activeFiltersCount > 0 ? `Filtros (${activeFiltersCount})` : 'Filtrar'}
+          </button>
+
+          <button
+            className="spotify-sort-btn"
+            onClick={() => setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest')}
+            title="Alternar ordem dos episódios"
+          >
+            <ArrowUpDown size={13} />
+            {sortOrder === 'newest' ? 'Recentes' : 'Antigos'}
+          </button>
+        </div>
       </div>
+
+      {/* ACTIVE FILTERS PILLS ROW */}
+      {activeFiltersCount > 0 && (
+        <div className="spotify-active-filters-row animate-fade-in">
+          {selectedSeries && (
+            <span className="spotify-active-filter-tag" onClick={() => setSelectedSeries(null)}>
+              Série: {selectedSeries} <X size={12} />
+            </span>
+          )}
+          {selectedSpeaker !== 'all' && (
+            <span className="spotify-active-filter-tag" onClick={() => setSelectedSpeaker('all')}>
+              Pregador: {selectedSpeaker} <X size={12} />
+            </span>
+          )}
+          {selectedDuration !== 'all' && (
+            <span className="spotify-active-filter-tag" onClick={() => setSelectedDuration('all')}>
+              {selectedDuration === 'short' ? '< 40 min' : '≥ 40 min'} <X size={12} />
+            </span>
+          )}
+          {onlyWithQuestions && (
+            <span className="spotify-active-filter-tag" onClick={() => setOnlyWithQuestions(false)}>
+              Guia da Mesa <X size={12} />
+            </span>
+          )}
+          {sortOrder === 'oldest' && (
+            <span className="spotify-active-filter-tag" onClick={() => setSortOrder('newest')}>
+              Mais antigos <X size={12} />
+            </span>
+          )}
+          <button className="spotify-clear-all-btn" onClick={resetFilters}>
+            Limpar tudo
+          </button>
+        </div>
+      )}
 
       {/* SPOTIFY EPISODE LIST */}
       <div className="spotify-episodes-container">
@@ -520,6 +646,147 @@ export default function SermonsView() {
               >
                 <ExternalLink size={16} /> Visitar Site Oficial da Igreja
               </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FILTER BOTTOM SHEET / MODAL */}
+      {isFilterModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsFilterModalOpen(false)}>
+          <div className="filter-modal-content animate-slide-up" onClick={(e) => e.stopPropagation()}>
+            <div className="filter-modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <SlidersHorizontal size={18} color="#1ed760" />
+                <h3 className="filter-modal-title">Filtros & Ordenação</h3>
+              </div>
+              <button className="filter-modal-close" onClick={() => setIsFilterModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="filter-modal-body">
+              {/* 1. PREGADORES */}
+              <div className="filter-group">
+                <label className="filter-label">
+                  <User size={14} color="#1ed760" /> Pregador
+                </label>
+                <div className="filter-chips-grid">
+                  <button
+                    className={`filter-chip ${selectedSpeaker === 'all' ? 'active' : ''}`}
+                    onClick={() => setSelectedSpeaker('all')}
+                  >
+                    Todos os pregadores
+                  </button>
+                  {availableSpeakers.map(spk => (
+                    <button
+                      key={spk}
+                      className={`filter-chip ${selectedSpeaker === spk ? 'active' : ''}`}
+                      onClick={() => setSelectedSpeaker(selectedSpeaker === spk ? 'all' : spk)}
+                    >
+                      {spk}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2. SÉRIES & TEMAS */}
+              <div className="filter-group">
+                <label className="filter-label">
+                  <BookOpen size={14} color="#60a5fa" /> Série / Tema
+                </label>
+                <div className="filter-chips-grid">
+                  <button
+                    className={`filter-chip ${!selectedSeries ? 'active' : ''}`}
+                    onClick={() => setSelectedSeries(null)}
+                  >
+                    Todas as séries
+                  </button>
+                  {availableSeries.map(ser => (
+                    <button
+                      key={ser}
+                      className={`filter-chip ${selectedSeries === ser ? 'active' : ''}`}
+                      onClick={() => setSelectedSeries(selectedSeries === ser ? null : ser)}
+                    >
+                      {ser}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. ORDENAÇÃO POR DATA */}
+              <div className="filter-group">
+                <label className="filter-label">
+                  <Calendar size={14} color="#e5b25d" /> Ordenar por Data
+                </label>
+                <div className="filter-chips-grid">
+                  <button
+                    className={`filter-chip ${sortOrder === 'newest' ? 'active' : ''}`}
+                    onClick={() => setSortOrder('newest')}
+                  >
+                    Mais recentes primeiro
+                  </button>
+                  <button
+                    className={`filter-chip ${sortOrder === 'oldest' ? 'active' : ''}`}
+                    onClick={() => setSortOrder('oldest')}
+                  >
+                    Mais antigas primeiro
+                  </button>
+                </div>
+              </div>
+
+              {/* 4. DURAÇÃO */}
+              <div className="filter-group">
+                <label className="filter-label">
+                  <Clock size={14} color="#ec4899" /> Duração da Mensagem
+                </label>
+                <div className="filter-chips-grid">
+                  <button
+                    className={`filter-chip ${selectedDuration === 'all' ? 'active' : ''}`}
+                    onClick={() => setSelectedDuration('all')}
+                  >
+                    Qualquer duração
+                  </button>
+                  <button
+                    className={`filter-chip ${selectedDuration === 'short' ? 'active' : ''}`}
+                    onClick={() => setSelectedDuration(selectedDuration === 'short' ? 'all' : 'short')}
+                  >
+                    Até 40 min
+                  </button>
+                  <button
+                    className={`filter-chip ${selectedDuration === 'long' ? 'active' : ''}`}
+                    onClick={() => setSelectedDuration(selectedDuration === 'long' ? 'all' : 'long')}
+                  >
+                    Mais de 40 min
+                  </button>
+                </div>
+              </div>
+
+              {/* 5. APENAS COM PERGUNTAS DE MESA */}
+              <div className="filter-group">
+                <label className="filter-label">
+                  <Sparkles size={14} color="#a855f7" /> Recursos Adicionais
+                </label>
+                <div className="filter-chips-grid">
+                  <button
+                    className={`filter-chip ${onlyWithQuestions ? 'active' : ''}`}
+                    onClick={() => setOnlyWithQuestions(!onlyWithQuestions)}
+                  >
+                    {onlyWithQuestions ? '✓ Com Perguntas para a Mesa' : 'Com Perguntas para a Mesa'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* MODAL FOOTER */}
+            <div className="filter-modal-footer">
+              <button className="filter-btn-reset" onClick={resetFilters}>
+                <RotateCcw size={14} />
+                Limpar
+              </button>
+              <button className="filter-btn-apply" onClick={() => setIsFilterModalOpen(false)}>
+                Ver {filteredSermons.length} {filteredSermons.length === 1 ? 'resultado' : 'resultados'}
+              </button>
             </div>
           </div>
         </div>

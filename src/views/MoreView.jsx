@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Heart, Copy, Check, BookOpen, MessageSquare, Plus, Send, 
-  MapPin, Clock, ExternalLink, Phone, Info
+  Heart, Copy, Check, Plus, Send, MapPin, Clock
 } from 'lucide-react';
 import { CHURCH_INFO, CHURCH_BOOKS, INITIAL_PRAYERS } from '../data/mockData';
 
@@ -74,6 +73,37 @@ export default function MoreView({ onOpenAdmin }) {
     setVisitorSubmitted(true);
   };
 
+  const serviceCards = [
+    {
+      id: 'prayers',
+      title: 'Mural de Oração',
+      subtitle: `${prayers.length} pedidos`,
+      gradient: 'linear-gradient(135deg, #c76f61, #7f2e24)',
+      image: '/sala-de-oracao.jpg'
+    },
+    {
+      id: 'pix',
+      title: 'Dízimos & PIX',
+      subtitle: 'Generosidade',
+      gradient: 'linear-gradient(135deg, #37634d, #1a3828)',
+      image: 'https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Cantata-36.jpg'
+    },
+    {
+      id: 'library',
+      title: 'Biblioteca Simples',
+      subtitle: `${CHURCH_BOOKS.length} livros`,
+      gradient: 'linear-gradient(135deg, #374e76, #1a2944)',
+      image: 'https://igrejacristasimples.com.br/wp-content/uploads/2024/08/LIVRO_1.png'
+    },
+    {
+      id: 'contact',
+      title: 'Ficha & Informações',
+      subtitle: 'Visitantes & Info',
+      gradient: 'linear-gradient(135deg, #b8782e, #693f10)',
+      image: 'https://igrejacristasimples.com.br/wp-content/uploads/2024/08/Foto-Site-1.jpg'
+    }
+  ];
+
   return (
     <div className="more-view animate-fade-in">
       <div className="section-title-wrap">
@@ -85,39 +115,37 @@ export default function MoreView({ onOpenAdmin }) {
         </div>
       </div>
 
-      {/* Navigation Sub-Chips */}
-      <div className="chips-scroll">
-        <button
-          className={`chip-btn ${activeSubSection === 'prayers' ? 'active' : ''}`}
-          onClick={() => setActiveSubSection('prayers')}
-        >
-          <Heart size={14} />
-          Mural de Oração
-        </button>
-
-        <button
-          className={`chip-btn ${activeSubSection === 'pix' ? 'active' : ''}`}
-          onClick={() => setActiveSubSection('pix')}
-        >
-          <Copy size={14} />
-          Dízimos & PIX
-        </button>
-
-        <button
-          className={`chip-btn ${activeSubSection === 'library' ? 'active' : ''}`}
-          onClick={() => setActiveSubSection('library')}
-        >
-          <BookOpen size={14} />
-          Biblioteca Simples
-        </button>
-
-        <button
-          className={`chip-btn ${activeSubSection === 'contact' ? 'active' : ''}`}
-          onClick={() => setActiveSubSection('contact')}
-        >
-          <Info size={14} />
-          Ficha & Informações
-        </button>
+      {/* 4 Cards Retangulares - Estilo Séries do Spotify */}
+      <div className="more-services-grid">
+        {serviceCards.map((item) => {
+          const isActive = activeSubSection === item.id;
+          return (
+            <div
+              key={item.id}
+              className={`more-service-card ${isActive ? 'active' : ''}`}
+              style={{ background: item.gradient }}
+              onClick={() => setActiveSubSection(item.id)}
+              role="button"
+              tabIndex={0}
+              aria-label={item.title}
+            >
+              {isActive && (
+                <div className="more-service-active-badge">
+                  <span className="more-service-active-dot" />
+                  <span>Ativo</span>
+                </div>
+              )}
+              <div className="more-service-name">{item.title}</div>
+              <span className="more-service-subtitle">{item.subtitle}</span>
+              <img
+                src={item.image}
+                alt={item.title}
+                className="more-service-img"
+                loading="lazy"
+              />
+            </div>
+          );
+        })}
       </div>
 
       {/* SECTION 1: PRAYER MURAL */}
@@ -203,10 +231,29 @@ export default function MoreView({ onOpenAdmin }) {
           )}
 
           <div className="prayers-list">
-            {prayers.map((p) => {
+            {prayers.map((p, idx) => {
               const hasPrayed = prayedSet.includes(p.id);
+              const postitThemes = ['postit-yellow', 'postit-peach', 'postit-rose', 'postit-mint'];
+              const colorClass = postitThemes[idx % postitThemes.length];
+
               return (
-                <div key={p.id} className="prayer-card">
+                <div
+                  key={p.id}
+                  className={`prayer-card ${colorClass}`}
+                >
+                  {/* Pin vermelho no canto */}
+                  <div className="postit-pin" aria-hidden="true" title="Fixado com alfinete">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <ellipse cx="12" cy="21" rx="4" ry="1.5" fill="rgba(0,0,0,0.28)" />
+                      <line x1="12" y1="13" x2="12" y2="20" stroke="#64748b" strokeWidth="2.2" strokeLinecap="round" />
+                      <ellipse cx="12" cy="13" rx="4.5" ry="1.8" fill="#991b1b" />
+                      <path d="M8.5 13 C8.5 10 10 9 10 6 L14 6 C14 9 15.5 10 15.5 13 Z" fill="#dc2626" />
+                      <ellipse cx="12" cy="6" rx="4" ry="1.6" fill="#ef4444" />
+                      <circle cx="12" cy="5" r="3.2" fill="#f87171" />
+                      <ellipse cx="11.2" cy="4.2" rx="1.2" ry="0.8" fill="#ffffff" opacity="0.85" />
+                    </svg>
+                  </div>
+
                   <div className="prayer-header">
                     <span className="prayer-author">{p.author}</span>
                     <span className="prayer-date">{p.date}</span>
@@ -216,7 +263,7 @@ export default function MoreView({ onOpenAdmin }) {
                     className={`prayer-action-btn ${hasPrayed ? 'prayed' : ''}`}
                     onClick={() => handleTogglePrayed(p.id)}
                   >
-                    <Heart size={14} fill={hasPrayed ? 'var(--color-terracotta)' : 'none'} />
+                    <Heart size={14} fill={hasPrayed ? '#ffffff' : 'none'} color={hasPrayed ? '#ffffff' : '#b91c1c'} />
                     <span>{hasPrayed ? 'Você está orando' : 'Estou orando'} ({p.prayerCount})</span>
                   </button>
                 </div>
